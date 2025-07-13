@@ -63,6 +63,97 @@
                 e.preventDefault();
                 return false;
             });
+            
+            // Detect when inspector is open and hide images
+            let devtools = {
+                open: false,
+                orientation: null
+            };
+            
+            const threshold = 160;
+            
+            const emitEvent = (isOpen, orientation) => {
+                window.dispatchEvent(new CustomEvent('devtoolschange', {
+                    detail: {
+                        isOpen,
+                        orientation
+                    }
+                }));
+            };
+            
+            const main = ({emitEvents = true} = {}) => {
+                const widthThreshold = window.outerWidth - window.innerWidth > threshold;
+                const heightThreshold = window.outerHeight - window.innerHeight > threshold;
+                const orientation = widthThreshold ? 'vertical' : 'horizontal';
+                
+                if (
+                    !(heightThreshold && widthThreshold) &&
+                    ((window.Firebug && window.Firebug.chrome && window.Firebug.chrome.isInitialized) || widthThreshold || heightThreshold)
+                ) {
+                    if ((!devtools.open || devtools.orientation !== orientation)) {
+                        devtools.open = true;
+                        devtools.orientation = orientation;
+                        if (emitEvents) {
+                            emitEvent(true, orientation);
+                        }
+                    }
+                } else {
+                    if (devtools.open) {
+                        devtools.open = false;
+                        devtools.orientation = null;
+                        if (emitEvents) {
+                            emitEvent(false, null);
+                        }
+                    }
+                }
+            };
+            
+            // Check for devtools on load
+            main({emitEvents: false});
+            
+            // Check for devtools on resize
+            setInterval(main, 500);
+            
+            // Listen for devtools change events
+            window.addEventListener('devtoolschange', function(e) {
+                const images = document.querySelectorAll('.image');
+                if (e.detail.isOpen) {
+                    // Hide images when inspector is open
+                    images.forEach(img => {
+                        img.style.display = 'none';
+                    });
+                } else {
+                    // Show images when inspector is closed
+                    images.forEach(img => {
+                        img.style.display = 'block';
+                    });
+                }
+            });
+            
+            // Additional detection methods
+            let devtools = false;
+            const threshold = 160;
+            
+            setInterval(() => {
+                const widthThreshold = window.outerWidth - window.innerWidth > threshold;
+                const heightThreshold = window.outerHeight - window.innerHeight > threshold;
+                
+                if (widthThreshold || heightThreshold) {
+                    if (!devtools) {
+                        devtools = true;
+                        document.querySelectorAll('.image').forEach(img => {
+                            img.style.display = 'none';
+                        });
+                    }
+                } else {
+                    if (devtools) {
+                        devtools = false;
+                        document.querySelectorAll('.image').forEach(img => {
+                            img.style.display = 'block';
+                        });
+                    }
+                }
+            }, 100);
         });
     </script>
 </body>
