@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const clampedPercentage = Math.max(0, Math.min(100, percentage));
         
         // Calculate the clip-path percentage based on the grabber center position
-        const grabberWidth = 25; // Width of the grabber
+        const grabberWidth = 20; // Width of the grabber
         const containerWidth = imageContainer.offsetWidth;
         const availableWidth = containerWidth - grabberWidth;
         
@@ -27,9 +27,9 @@ document.addEventListener('DOMContentLoaded', function() {
         
         image2.style.clipPath = `polygon(${clipPercentage}% 0, 100% 0, 100% 100%, ${clipPercentage}% 100%)`;
         
-        // Position the line at the center of the grabber (which is 25px wide)
-        // When at 0%, the line should be at 12.5px from left edge
-        // When at 100%, the line should be at (container width - 12.5px) from left edge
+        // Position the line at the center of the grabber (which is 20px wide)
+        // When at 0%, the line should be at 10px from left edge
+        // When at 100%, the line should be at (container width - 10px) from left edge
         let linePosition;
         if (clampedPercentage <= 0) {
             linePosition = grabberWidth / 2;
